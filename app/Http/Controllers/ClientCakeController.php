@@ -2,65 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreClientCakeRequest;
-use App\Http\Requests\UpdateClientCakeRequest;
-use App\Models\ClientCake;
+use App\Models\User;
 
 class ClientCakeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los clientes
     public function index()
     {
-        //
+        $clients = User::with('orders')->get();
+        return view('clients.index', compact('clients'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Ver el historial de pedidos de un cliente
+    public function showOrders($userId)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreClientCakeRequest $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(ClientCake $clientCake)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ClientCake $clientCake)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateClientCakeRequest $request, ClientCake $clientCake)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(ClientCake $clientCake)
-    {
-        //
+        $client = User::findOrFail($userId);
+        $orders = $client->orders()->with('cake', 'ingredients')->get();
+        return view('clients.orders', compact('client', 'orders'));
     }
 }

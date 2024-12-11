@@ -2,65 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
+use App\Models\Cake;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar todos los pedidos
     public function index()
     {
-        //
+        $orders = Order::with('user', 'cake')->get();
+        return view('orders.index', compact('orders'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Mostrar el formulario para crear un nuevo pedido
     public function create()
     {
-        //
+        // Obtener todos los pasteles y usuarios para pasarlos a la vista
+        $cakes = Cake::all();
+        $users = User::all();
+
+        return view('orders.create', compact('cakes', 'users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreOrderRequest $request)
+
+    // Almacenar un nuevo pedido
+    public function store(Request $request)
     {
-        //
+        // Validación de los datos
+        $request->validate([
+            'order_status' => 'required|string',
+            'delivery_date' => 'required|date',
+            'cake_id' => 'required|exists:cakes,id',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        // Crear el nuevo pedido
+        Order::create([
+            'order_status' => $request->order_status,
+            'delivery_date' => $request->delivery_date,
+            'cake_id' => $request->cake_id,
+            'user_id' => $request->user_id,
+        ]);
+
+        // Redirigir a la lista de pedidos con un mensaje de éxito
+        return redirect()->route('orders.index')->with('success', 'Pedido creado con éxito');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
+    public function edit($id)
     {
-        //
+        // Obtener el pedido a editar
+        $order = Order::findOrFail($id);
+
+        // Obtener los pasteles y los usuarios
+        $cakes = Cake::all();
+        $users = User::all();
+
+        return view('orders.edit', compact('order', 'cakes', 'users'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
+    public function update(Request $request, $id)
     {
-        //
+        // Validación de los datos
+        $request->validate([
+            'order_status' => 'required|string',
+            'delivery_date' => 'required|date',
+            'cake_id' => 'required|exists:cakes,id',
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        // Buscar y actualizar el pedido
+        $order = Order::findOrFail($id);
+        $order->update([
+            'order_status' => $request->order_status,
+            'delivery_date' => $request->delivery_date,
+            'cake_id' => $request->cake_id,
+            'user_id' => $request->user_id,
+        ]);
+
+        // Redirigir a la lista de pedidos con un mensaje de éxito
+        return redirect()->route('orders.index')->with('success', 'Pedido actualizado con éxito');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateOrderRequest $request, Order $order)
+
+    // Cambiar el estado de un pedido
+    public function updateStatus(Request $request, Order $order)
     {
-        //
+        $order->update([
+            'order_status' => $request->status,
+        ]);
+
+        return redirect()->route('orders.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
+    // Ver los pedidos de un cliente
+    public function userOrders($userId)
     {
-        //
+        $orders = Order::where('user_id', $userId)->with('cake', 'ingredients')->get();
+        return view('orders.user_orders', compact('orders'));
     }
 }
