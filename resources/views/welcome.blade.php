@@ -68,10 +68,6 @@
                 <h1 class="text-5xl font-bold mb-4 animate-fade-in-down text-pink-600">Bienvenidos a SweetMoments</h1>
                 <p class="text-xl mb-8 animate-fade-in-up text-pink-600">Donde cada bocado es un momento de felicidad
                 </p>
-                <a href="#"
-                    class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded animate-bounce">
-                    Ver Nuestros Productos
-                </a>
             </div>
         </section>
 

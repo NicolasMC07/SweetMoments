@@ -102,4 +102,23 @@ class OrderController extends Controller
         $orders = Order::where('user_id', $userId)->with('cake', 'ingredients')->get();
         return view('orders.user_orders', compact('orders'));
     }
+
+    public function destroy($id)
+    {
+        // Buscar la orden por ID y eliminarla
+        $order = Order::findOrFail($id);
+        $order->delete();
+
+        // Redirigir con un mensaje de éxito
+        return redirect()->route('orders.index')->with('success', 'Orden eliminada correctamente');
+    }
+
+    public function show($id)
+    {
+        // Buscar la orden por ID
+        $order = Order::findOrFail($id);
+
+        // Devolver la vista con los detalles de la orden
+        return view('orders.show', compact('order'));
+    }
 }
